@@ -1,0 +1,6 @@
+{
+  "name": "Kidney Health Essentials Bundle",
+  "description": "A high-converting, professional landing page for the Kidney Health Essentials Bundle by International Kidney Health featuring 3 comprehensive guides and a bonus CKD guide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
