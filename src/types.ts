@@ -11,6 +11,8 @@ export interface EbookResource {
   tableOfContents?: { chapter: string; summary: string }[];
   keyHighlights: string[];
   pagesEstimate?: string;
+  downloadUrl?: string;
+  downloadFileName?: string;
 }
 
 export interface FAQItem {

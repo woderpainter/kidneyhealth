@@ -107,19 +107,32 @@ export const EbookPreviewModal: React.FC<EbookPreviewModalProps> = ({
         {/* Modal Footer CTA */}
         <div className="bg-slate-50 p-5 sm:p-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
-            <span className="text-xs text-slate-500 block">Get this guide + all 3 companions</span>
+            <span className="text-xs text-slate-500 block">Direct access or complete bundle</span>
             <span className="text-xs font-extrabold text-emerald-900">Kidney Health Essentials Bundle ([PRICE])</span>
           </div>
-          <button
-            onClick={() => {
-              onClose();
-              onOpenCheckout();
-            }}
-            className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm px-6 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>GET THE COMPLETE BUNDLE</span>
-            <ArrowRight className="w-4 h-4 text-emerald-300" />
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+            {resource.downloadUrl && (
+              <a
+                href={resource.downloadUrl}
+                download={resource.downloadFileName || true}
+                className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                id={`modal-download-${resource.id}`}
+              >
+                <Download className="w-4 h-4 text-emerald-300" />
+                <span>Download eBook</span>
+              </a>
+            )}
+            <button
+              onClick={() => {
+                onClose();
+                onOpenCheckout();
+              }}
+              className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>GET ALL 4 GUIDES</span>
+              <ArrowRight className="w-4 h-4 text-emerald-300" />
+            </button>
+          </div>
         </div>
 
       </div>

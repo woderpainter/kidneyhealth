@@ -1,7 +1,7 @@
 import React from 'react';
 import { EbookResource } from '../types';
 import { EbookCoverVisual } from './EbookCoverVisual';
-import { Check, Eye, BookOpen, Layers } from 'lucide-react';
+import { Check, Eye, BookOpen, Layers, Download } from 'lucide-react';
 
 interface EbookCardProps {
   resource: EbookResource;
@@ -26,7 +26,11 @@ export const EbookCard: React.FC<EbookCardProps> = ({ resource, index, onPreview
 
       <div className="p-6 sm:p-7 flex-1 flex flex-col">
         {/* Visual Cover Area */}
-        <div className="py-4 flex justify-center items-center bg-gradient-to-b from-slate-50/60 to-transparent rounded-xl mb-6 relative">
+        <div 
+          onClick={() => onPreview(resource)}
+          className="py-4 flex justify-center items-center bg-gradient-to-b from-slate-50/60 to-transparent rounded-xl mb-6 relative cursor-pointer"
+          title="Click to preview table of contents"
+        >
           <EbookCoverVisual resource={resource} size="md" />
         </div>
 
@@ -73,13 +77,15 @@ export const EbookCard: React.FC<EbookCardProps> = ({ resource, index, onPreview
 
       {/* Card Action Footer */}
       <div className="p-6 pt-0">
-        <button
-          onClick={() => onPreview(resource)}
+        <a
+          href={resource.downloadUrl || '#'}
+          download={resource.downloadFileName || true}
           className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-200/80 transition-colors cursor-pointer"
+          id={`download-ebook-btn-${resource.id}`}
         >
-          <Eye className="w-4 h-4 text-emerald-700" />
-          <span>Look Inside & Table of Contents</span>
-        </button>
+          <Download className="w-4 h-4 text-emerald-700" />
+          <span>Download eBook</span>
+        </a>
       </div>
 
     </div>

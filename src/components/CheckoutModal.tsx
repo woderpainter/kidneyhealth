@@ -197,13 +197,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                       <span className="text-[10px] text-slate-500">PDF Ebook • High Resolution</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => alert(`Starting download for "${r.title}". In production this opens the secure PDF delivery.`)}
+                  <a
+                    href={r.downloadUrl || `/ebooks/${r.title}.rar`}
+                    download={r.downloadFileName || true}
                     className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold rounded-lg flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                    id={`checkout-download-${r.id}`}
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Download</span>
-                  </button>
+                  </a>
                 </div>
               ))}
 
@@ -220,13 +222,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose })
                     <span className="text-[10px] text-amber-800 font-semibold">Included Bonus Guide</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => alert(`Starting download for "${BONUS_RESOURCE.title}". In production this opens the secure PDF delivery.`)}
+                <a
+                  href={BONUS_RESOURCE.downloadUrl || `/ebooks/${BONUS_RESOURCE.title}.rar`}
+                  download={BONUS_RESOURCE.downloadFileName || true}
                   className="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold rounded-lg flex items-center gap-1 transition-colors cursor-pointer shrink-0 shadow-xs"
+                  id={`checkout-download-${BONUS_RESOURCE.id}`}
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
-                </button>
+                </a>
               </div>
             </div>
 

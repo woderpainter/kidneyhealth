@@ -31,7 +31,9 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Step-by-step patient timeline from evaluation to recovery",
       "Questions to ask your transplant coordinator & nephrologist",
       "Medication management routines and adherence tips"
-    ]
+    ],
+    downloadUrl: "/ebooks/Living with Dialysis A Practical Guide to Fistula Care and Warning Signs.rar",
+    downloadFileName: "Living with Dialysis A Practical Guide to Fistula Care and Warning Signs.rar"
   },
   {
     id: "kidney-disease",
@@ -58,7 +60,9 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Clear visual explanations of eGFR and Creatinine lab metrics",
       "Early warning signals often missed in standard checkups",
       "Empowerment guide for doctor consultations"
-    ]
+    ],
+    downloadUrl: "/ebooks/Kidney Disease.rar",
+    downloadFileName: "Kidney Disease.rar"
   },
   {
     id: "kidney-health-food-guide",
@@ -85,7 +89,9 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Complete 7-day ready-to-use kidney meal blueprint",
       "Visual low-potassium & low-sodium substitution tables",
       "Clear guidelines on portion sizing and seasoning alternatives"
-    ]
+    ],
+    downloadUrl: "/ebooks/Kidney Food.rar",
+    downloadFileName: "Kidney Food.rar"
   }
 ];
 
@@ -113,7 +119,9 @@ export const BONUS_RESOURCE: EbookResource = {
     "Included at no extra charge inside the complete bundle",
     "Simplifies complex nephrology terminology into plain language",
     "Step-by-step lifestyle checklist for daily kidney protection"
-  ]
+  ],
+  downloadUrl: "/ebooks/Bonus CKD Guide.rar",
+  downloadFileName: "Bonus CKD Guide.rar"
 };
 
 export const BENEFITS_LIST: BenefitItem[] = [

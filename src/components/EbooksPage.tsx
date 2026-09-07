@@ -355,13 +355,15 @@ export const EbooksPage: React.FC<EbooksPageProps> = ({
                       <span>Preview Look Inside</span>
                     </button>
 
-                    <button
-                      onClick={onOpenCheckout}
+                    <a
+                      href={ebook.downloadUrl || '#'}
+                      download={ebook.downloadFileName || true}
                       className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      id={`ebook-page-download-${ebook.id}`}
                     >
-                      <span>Get In Bundle</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-emerald-300" />
-                    </button>
+                      <Download className="w-3.5 h-3.5 text-emerald-300" />
+                      <span>Download eBook</span>
+                    </a>
                   </div>
 
                 </div>
