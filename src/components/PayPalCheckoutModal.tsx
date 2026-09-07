@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import { PayPalScriptProvider, PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import {
   X,
   Lock,
@@ -14,7 +14,7 @@ import {
   Clock,
   RotateCcw,
 } from 'lucide-react';
-import { usePurchases } from '../context/PurchaseContext';
+import { usePurchases, PayPalConfig } from '../context/PurchaseContext';
 import { COMPLETE_BUNDLE_PRODUCT, MAIN_RESOURCES, BONUS_RESOURCE } from '../data/bundleData';
 import { EbookResource } from '../types';
 
@@ -24,6 +24,143 @@ interface SuccessData {
   orderId: string;
   title: string;
   productId: string;
+}
+
+interface PayPalButtonsWrapperProps {
+  activeProduct: EbookResource | typeof COMPLETE_BUNDLE_PRODUCT;
+  paypalConfig: PayPalConfig;
+  setErrorMessage: (msg: string | null) => void;
+  setWarningMessage: (msg: string | null) => void;
+  setSuccessData: (data: SuccessData) => void;
+  setIsCapturing: (capturing: boolean) => void;
+  parseErrorMessage: (err: any) => string;
+  recordPurchase: (
+    ebookId: string,
+    token: string,
+    expiresAt: number,
+    title: string,
+    orderId?: string
+  ) => void;
+}
+
+function PayPalButtonsWrapper({
+  activeProduct,
+  paypalConfig,
+  setErrorMessage,
+  setWarningMessage,
+  setSuccessData,
+  setIsCapturing,
+  parseErrorMessage,
+  recordPurchase,
+}: PayPalButtonsWrapperProps) {
+  const [{ isPending, isRejected }] = usePayPalScriptReducer();
+
+  if (isRejected) {
+    return (
+      <div className="bg-rose-50 border border-rose-200 text-rose-900 p-4 rounded-xl text-xs space-y-2">
+        <div className="flex items-center gap-2 font-bold text-rose-800">
+          <AlertCircle className="w-4 h-4 text-rose-600" />
+          <span>PayPal payment gateway could not be loaded</span>
+        </div>
+        <p className="text-slate-600 text-[11px] leading-relaxed">
+          Please check your network connection or verify that ad-blocking extensions are not restricting access to PayPal Sandbox.
+        </p>
+      </div>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div className="py-6 flex flex-col items-center justify-center space-y-2 text-slate-500">
+        <RotateCcw className="w-5 h-5 animate-spin text-emerald-700" />
+        <span className="text-xs">Loading PayPal &amp; Card checkout options...</span>
+      </div>
+    );
+  }
+
+  return (
+    <PayPalButtons
+      forceReRender={[activeProduct.id, paypalConfig.clientId]}
+      style={{
+        layout: 'vertical',
+        color: 'gold',
+        shape: 'rect',
+        label: 'pay',
+        height: 44,
+      }}
+      createOrder={async () => {
+        setErrorMessage(null);
+        setWarningMessage(null);
+        try {
+          const res = await fetch('/api/payments/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ebookId: activeProduct.id }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Unable to create PayPal order');
+          }
+          return data.orderID;
+        } catch (err: any) {
+          const msg = parseErrorMessage(err);
+          setErrorMessage(msg);
+          throw err;
+        }
+      }}
+      onApprove={async (data) => {
+        setIsCapturing(true);
+        setErrorMessage(null);
+        try {
+          const res = await fetch('/api/payments/capture-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderID: data.orderID,
+              ebookId: activeProduct.id,
+            }),
+          });
+          const captureData = await res.json();
+          if (!res.ok) {
+            throw new Error(captureData.error || 'Payment capture failed');
+          }
+
+          // Payment confirmed on server!
+          const newSuccess: SuccessData = {
+            downloadToken: captureData.downloadToken,
+            expiresAt: captureData.expiresAt,
+            orderId: captureData.order?.id || data.orderID,
+            title: activeProduct.title,
+            productId: activeProduct.id,
+          };
+
+          setSuccessData(newSuccess);
+          recordPurchase(
+            activeProduct.id,
+            captureData.downloadToken,
+            captureData.expiresAt,
+            activeProduct.title,
+            captureData.order?.id || data.orderID
+          );
+        } catch (err: any) {
+          const msg = parseErrorMessage(err);
+          setErrorMessage(msg);
+        } finally {
+          setIsCapturing(false);
+        }
+      }}
+      onCancel={() => {
+        setWarningMessage(
+          'PayPal checkout was cancelled. You have not been charged. You can resume checkout anytime.'
+        );
+      }}
+      onError={(err: any) => {
+        console.error('PayPal Buttons error:', err);
+        const msg = parseErrorMessage(err);
+        setErrorMessage(msg);
+      }}
+    />
+  );
 }
 
 export const PayPalCheckoutModal: React.FC = () => {
@@ -138,44 +275,67 @@ export const PayPalCheckoutModal: React.FC = () => {
                 </div>
 
                 {isBundle ? (
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
+                    {/* All-in-one Master PDF */}
+                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <FileText className="w-5 h-5 text-emerald-700 shrink-0" />
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 block truncate">Complete All-in-One Bundle PDF</span>
+                          <span className="text-[11px] text-emerald-800">All 4 Guides compiled into one comprehensive file</span>
+                        </div>
+                      </div>
+                      <a
+                        href={`/api/downloads/${successData.downloadToken}`}
+                        className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors shrink-0"
+                        id="download-complete-bundle-all"
+                      >
+                        <Download className="w-3.5 h-3.5 text-emerald-300" />
+                        <span>Download All</span>
+                      </a>
+                    </div>
+
+                    <div className="pt-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                      Or Download Individual Guides:
+                    </div>
+
                     {MAIN_RESOURCES.map((res) => (
                       <div
                         key={res.id}
-                        className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3"
+                        className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <FileText className="w-4 h-4 text-emerald-700 shrink-0" />
-                          <span className="text-xs font-bold text-slate-900 truncate">{res.title}</span>
+                          <span className="text-xs font-medium text-slate-900 truncate">{res.title}</span>
                         </div>
                         <a
-                          href={`/api/downloads/${successData.downloadToken}`}
-                          className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors shrink-0"
+                          href={`/api/downloads/${successData.downloadToken}?item=${res.id}`}
+                          className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg shadow-xs flex items-center gap-1.5 transition-colors shrink-0"
                           id={`download-bundle-item-${res.id}`}
                         >
-                          <Download className="w-3.5 h-3.5 text-emerald-300" />
-                          <span>Download</span>
+                          <Download className="w-3 h-3 text-slate-300" />
+                          <span>PDF</span>
                         </a>
                       </div>
                     ))}
 
-                    <div className="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
+                    <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
                         <div>
-                          <span className="text-xs font-bold text-slate-900 block truncate">
+                          <span className="text-xs font-medium text-slate-900 block truncate">
                             {BONUS_RESOURCE.title}
                           </span>
                           <span className="text-[10px] text-amber-800 font-semibold">Included Bonus</span>
                         </div>
                       </div>
                       <a
-                        href={`/api/downloads/${successData.downloadToken}`}
-                        className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-colors shrink-0"
+                        href={`/api/downloads/${successData.downloadToken}?item=bonus-ckd-guide`}
+                        className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs rounded-lg shadow-xs flex items-center gap-1.5 transition-colors shrink-0"
                         id="download-bonus-item"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download</span>
+                        <Download className="w-3 h-3" />
+                        <span>PDF</span>
                       </a>
                     </div>
                   </div>
@@ -346,91 +506,24 @@ export const PayPalCheckoutModal: React.FC = () => {
                     )}
 
                     <PayPalScriptProvider
+                      key={paypalConfig.clientId}
                       options={{
-                        clientId: paypalConfig?.clientId || 'test',
-                        currency: 'USD',
+                        clientId: paypalConfig.clientId,
+                        currency: paypalConfig.currency || 'USD',
                         intent: 'capture',
+                        enableFunding: 'card',
+                        components: 'buttons',
                       }}
                     >
-                      <PayPalButtons
-                        style={{
-                          layout: 'vertical',
-                          color: 'gold',
-                          shape: 'rect',
-                          label: 'pay',
-                          height: 44,
-                        }}
-                        createOrder={async () => {
-                          setErrorMessage(null);
-                          setWarningMessage(null);
-                          try {
-                            const res = await fetch('/api/payments/create-order', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ ebookId: activeProduct.id }),
-                            });
-                            const data = await res.json();
-                            if (!res.ok) {
-                              throw new Error(data.error || 'Unable to create PayPal order');
-                            }
-                            return data.orderID;
-                          } catch (err: any) {
-                            const msg = parseErrorMessage(err);
-                            setErrorMessage(msg);
-                            throw err;
-                          }
-                        }}
-                        onApprove={async (data) => {
-                          setIsCapturing(true);
-                          setErrorMessage(null);
-                          try {
-                            const res = await fetch('/api/payments/capture-order', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                orderID: data.orderID,
-                                ebookId: activeProduct.id,
-                              }),
-                            });
-                            const captureData = await res.json();
-                            if (!res.ok) {
-                              throw new Error(captureData.error || 'Payment capture failed');
-                            }
-
-                            // Payment confirmed on server!
-                            const newSuccess: SuccessData = {
-                              downloadToken: captureData.downloadToken,
-                              expiresAt: captureData.expiresAt,
-                              orderId: captureData.order?.id || data.orderID,
-                              title: activeProduct.title,
-                              productId: activeProduct.id,
-                            };
-
-                            setSuccessData(newSuccess);
-                            recordPurchase(
-                              activeProduct.id,
-                              captureData.downloadToken,
-                              captureData.expiresAt,
-                              activeProduct.title,
-                              captureData.order?.id || data.orderID
-                            );
-                          } catch (err: any) {
-                            const msg = parseErrorMessage(err);
-                            setErrorMessage(msg);
-                          } finally {
-                            setIsCapturing(false);
-                          }
-                        }}
-                        onCancel={() => {
-                          setWarningMessage(
-                            'PayPal checkout was cancelled. You have not been charged. You can resume checkout anytime.'
-                          );
-                        }}
-                        onError={(err: any) => {
-                          console.error('PayPal Buttons error:', err);
-                          const msg = parseErrorMessage(err);
-                          setErrorMessage(msg);
-                        }}
+                      <PayPalButtonsWrapper
+                        activeProduct={activeProduct}
+                        paypalConfig={paypalConfig}
+                        setErrorMessage={setErrorMessage}
+                        setWarningMessage={setWarningMessage}
+                        setSuccessData={setSuccessData}
+                        setIsCapturing={setIsCapturing}
+                        parseErrorMessage={parseErrorMessage}
+                        recordPurchase={recordPurchase}
                       />
                     </PayPalScriptProvider>
                   </div>

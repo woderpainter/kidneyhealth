@@ -5,6 +5,9 @@ import dotenv from 'dotenv';
 import apiRouter from './server/index';
 
 dotenv.config();
+if (!process.env.PAYPAL_CLIENT_ID) {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env.example') });
+}
 
 async function startServer() {
   const app = express();

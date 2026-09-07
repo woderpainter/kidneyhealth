@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { validateDownloadToken, incrementDownloadCount } from '../tokens';
+import { getProduct } from '../products';
 
 const router = Router();
 
@@ -81,7 +82,15 @@ router.get('/:token', (req: Request, res: Response): void => {
       return;
     }
 
-    const product = validation.product;
+    let product = validation.product;
+    const requestedItem = (req.query.item || req.query.ebookId) as string | undefined;
+    if (requestedItem && validation.product.id === 'bundle-complete') {
+      const specificProduct = getProduct(requestedItem);
+      if (specificProduct) {
+        product = specificProduct;
+      }
+    }
+
     const storageDir = getStorageDirectory();
 
     // Prevent any directory traversal attacks: sanitize filename
