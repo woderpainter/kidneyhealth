@@ -1,7 +1,8 @@
 import React from 'react';
 import { EbookResource } from '../types';
 import { EbookCoverVisual } from './EbookCoverVisual';
-import { Check, Eye, BookOpen, Layers, Download } from 'lucide-react';
+import { Check, Layers, Download, ShoppingBag, CheckCircle2 } from 'lucide-react';
+import { usePurchases } from '../context/PurchaseContext';
 
 interface EbookCardProps {
   resource: EbookResource;
@@ -10,6 +11,9 @@ interface EbookCardProps {
 }
 
 export const EbookCard: React.FC<EbookCardProps> = ({ resource, index, onPreview }) => {
+  const { isPurchased, downloadEbook, openCheckout } = usePurchases();
+  const purchased = isPurchased(resource.id);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:border-emerald-700/30">
       
@@ -76,16 +80,26 @@ export const EbookCard: React.FC<EbookCardProps> = ({ resource, index, onPreview
       </div>
 
       {/* Card Action Footer */}
-      <div className="p-6 pt-0">
-        <a
-          href={resource.downloadUrl || '#'}
-          download={resource.downloadFileName || true}
-          className="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-200/80 transition-colors cursor-pointer"
-          id={`download-ebook-btn-${resource.id}`}
-        >
-          <Download className="w-4 h-4 text-emerald-700" />
-          <span>Download eBook</span>
-        </a>
+      <div className="p-6 pt-0 space-y-2">
+        {purchased ? (
+          <button
+            onClick={() => downloadEbook(resource.id)}
+            className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+            id={`download-ebook-btn-${resource.id}`}
+          >
+            <Download className="w-4 h-4 text-emerald-200" />
+            <span>Download eBook</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => openCheckout(resource)}
+            className="w-full py-2.5 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all cursor-pointer"
+            id={`buy-ebook-btn-${resource.id}`}
+          >
+            <ShoppingBag className="w-4 h-4 text-emerald-300" />
+            <span>Buy Now • ${resource.price.toFixed(2)}</span>
+          </button>
+        )}
       </div>
 
     </div>

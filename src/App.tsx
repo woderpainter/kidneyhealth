@@ -27,19 +27,16 @@ import { ArticlesPage } from './components/ArticlesPage';
 import { DialysisAppsPage } from './components/DialysisAppsPage';
 import { EbookResource, Article } from './types';
 import { ARTICLES_DATA } from './data/articlesData';
+import { PurchaseProvider, usePurchases } from './context/PurchaseContext';
 
-export default function App() {
+function MainApp() {
   const [currentView, setCurrentView] = useState<'home' | 'ebooks' | 'articles' | 'apps'>('home');
   const [selectedPreviewEbook, setSelectedPreviewEbook] = useState<EbookResource | null>(null);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const { openCheckout } = usePurchases();
 
   const handleOpenCheckout = () => {
-    setIsCheckoutOpen(true);
-  };
-
-  const handleCloseCheckout = () => {
-    setIsCheckoutOpen(false);
+    openCheckout();
   };
 
   const handlePreviewEbook = (ebook: EbookResource) => {
@@ -175,11 +172,16 @@ export default function App() {
       />
 
       {/* Interactive Digital Checkout / Access Modal */}
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={handleCloseCheckout}
-      />
+      <CheckoutModal />
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <PurchaseProvider>
+      <MainApp />
+    </PurchaseProvider>
   );
 }

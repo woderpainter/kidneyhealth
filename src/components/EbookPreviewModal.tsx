@@ -1,7 +1,8 @@
 import React from 'react';
 import { EbookResource } from '../types';
 import { EbookCoverVisual } from './EbookCoverVisual';
-import { X, BookOpen, Check, ArrowRight, Download, Sparkles, Layers } from 'lucide-react';
+import { X, BookOpen, Check, ArrowRight, Download, Sparkles, Layers, ShoppingBag } from 'lucide-react';
+import { usePurchases } from '../context/PurchaseContext';
 
 interface EbookPreviewModalProps {
   resource: EbookResource | null;
@@ -14,7 +15,10 @@ export const EbookPreviewModal: React.FC<EbookPreviewModalProps> = ({
   onClose,
   onOpenCheckout,
 }) => {
+  const { isPurchased, downloadEbook, openCheckout } = usePurchases();
   if (!resource) return null;
+
+  const purchased = isPurchased(resource.id);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
@@ -107,20 +111,36 @@ export const EbookPreviewModal: React.FC<EbookPreviewModalProps> = ({
         {/* Modal Footer CTA */}
         <div className="bg-slate-50 p-5 sm:p-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
-            <span className="text-xs text-slate-500 block">Direct access or complete bundle</span>
-            <span className="text-xs font-extrabold text-emerald-900">Kidney Health Essentials Bundle ([PRICE])</span>
+            <span className="text-xs text-slate-500 block">Direct single guide or full bundle</span>
+            <span className="text-xs font-extrabold text-emerald-900">
+              Single Guide: ${resource.price.toFixed(2)} • Complete Bundle: $27.00
+            </span>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
-            {resource.downloadUrl && (
-              <a
-                href={resource.downloadUrl}
-                download={resource.downloadFileName || true}
-                className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+            {purchased ? (
+              <button
+                onClick={() => {
+                  onClose();
+                  downloadEbook(resource.id);
+                }}
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
                 id={`modal-download-${resource.id}`}
               >
-                <Download className="w-4 h-4 text-emerald-300" />
-                <span>Download eBook</span>
-              </a>
+                <Download className="w-4 h-4 text-white" />
+                <span>Download eBook (PDF)</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onClose();
+                  openCheckout(resource);
+                }}
+                className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                id={`modal-buy-${resource.id}`}
+              >
+                <ShoppingBag className="w-4 h-4 text-emerald-300" />
+                <span>Buy Guide (${resource.price.toFixed(2)})</span>
+              </button>
             )}
             <button
               onClick={() => {
@@ -129,7 +149,7 @@ export const EbookPreviewModal: React.FC<EbookPreviewModalProps> = ({
               }}
               className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>GET ALL 4 GUIDES</span>
+              <span>GET ALL 4 GUIDES ($27)</span>
               <ArrowRight className="w-4 h-4 text-emerald-300" />
             </button>
           </div>

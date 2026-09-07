@@ -4,6 +4,11 @@ export interface EbookResource {
   tagline?: string;
   subtitle?: string;
   description: string;
+  price: number;
+  currency: string;
+  cover?: string;
+  pdfFile: string;
+  paypalProductId?: string;
   benefits: string[];
   coverColor: 'emerald' | 'forest' | 'teal' | 'gold-dark';
   badgeText?: string;
@@ -11,8 +16,6 @@ export interface EbookResource {
   tableOfContents?: { chapter: string; summary: string }[];
   keyHighlights: string[];
   pagesEstimate?: string;
-  downloadUrl?: string;
-  downloadFileName?: string;
 }
 
 export interface FAQItem {

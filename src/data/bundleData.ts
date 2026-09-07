@@ -11,6 +11,11 @@ export const MAIN_RESOURCES: EbookResource[] = [
     title: "KIDNEY TRANSPLANT JOURNEY",
     subtitle: "A complete patient guide to kidney transplant, covering what patients need to know before, during, and after kidney transplant.",
     description: "A comprehensive, compassionate patient guide providing step-by-step clarity on the evaluation process, surgery preparation, hospital stay, and long-term post-transplant wellness.",
+    price: 19.99,
+    currency: "USD",
+    cover: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
+    pdfFile: "kidney-transplant-journey.pdf",
+    paypalProductId: "EBOOK-TRANSPLANT-001",
     benefits: [
       "Before transplant preparation & evaluation",
       "During the journey & hospital stay insights",
@@ -31,15 +36,18 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Step-by-step patient timeline from evaluation to recovery",
       "Questions to ask your transplant coordinator & nephrologist",
       "Medication management routines and adherence tips"
-    ],
-    downloadUrl: "/ebooks/Living with Dialysis A Practical Guide to Fistula Care and Warning Signs.rar",
-    downloadFileName: "Living with Dialysis A Practical Guide to Fistula Care and Warning Signs.rar"
+    ]
   },
   {
     id: "kidney-disease",
     title: "KIDNEY DISEASE",
     tagline: "“The Illness You Don’t Feel… Until You Do”",
     description: "An easy-to-understand guide helping readers understand kidney disease, recognize important information early, and better understand kidney health and treatment options.",
+    price: 19.99,
+    currency: "USD",
+    cover: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
+    pdfFile: "kidney-disease.pdf",
+    paypalProductId: "EBOOK-DISEASE-002",
     benefits: [
       "Understand kidney disease and how kidneys function",
       "Learn important warning signs & subtle indicators",
@@ -60,15 +68,18 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Clear visual explanations of eGFR and Creatinine lab metrics",
       "Early warning signals often missed in standard checkups",
       "Empowerment guide for doctor consultations"
-    ],
-    downloadUrl: "/ebooks/Kidney Disease.rar",
-    downloadFileName: "Kidney Disease.rar"
+    ]
   },
   {
     id: "kidney-health-food-guide",
     title: "KIDNEY HEALTH FOOD GUIDE",
     tagline: "“What to Eat, What to Avoid & 7-Day Meal Plan”",
     description: "A practical guide to kidney-friendly food choices, foods to avoid, a 7-day meal plan, and a low-potassium food chart.",
+    price: 19.99,
+    currency: "USD",
+    cover: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+    pdfFile: "kidney-food-guide.pdf",
+    paypalProductId: "EBOOK-FOOD-003",
     benefits: [
       "Kidney-friendly foods & daily pantry staples",
       "Foods to avoid & hidden mineral sources",
@@ -89,9 +100,7 @@ export const MAIN_RESOURCES: EbookResource[] = [
       "Complete 7-day ready-to-use kidney meal blueprint",
       "Visual low-potassium & low-sodium substitution tables",
       "Clear guidelines on portion sizing and seasoning alternatives"
-    ],
-    downloadUrl: "/ebooks/Kidney Food.rar",
-    downloadFileName: "Kidney Food.rar"
+    ]
   }
 ];
 
@@ -100,6 +109,11 @@ export const BONUS_RESOURCE: EbookResource = {
   title: "BONUS GUIDE — CKD GUIDE",
   tagline: "“Exclusive Companion Educational Guide”",
   description: "A practical educational guide designed to help readers better understand chronic kidney disease and protect their kidney health.",
+  price: 14.99,
+  currency: "USD",
+  cover: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=80",
+  pdfFile: "bonus-ckd-guide.pdf",
+  paypalProductId: "EBOOK-CKD-004",
   benefits: [
     "Deeper clarity on Chronic Kidney Disease stages 1 through 5",
     "Evidence-based lifestyle strategies to support kidney longevity",
@@ -119,9 +133,19 @@ export const BONUS_RESOURCE: EbookResource = {
     "Included at no extra charge inside the complete bundle",
     "Simplifies complex nephrology terminology into plain language",
     "Step-by-step lifestyle checklist for daily kidney protection"
-  ],
-  downloadUrl: "/ebooks/Bonus CKD Guide.rar",
-  downloadFileName: "Bonus CKD Guide.rar"
+  ]
+};
+
+export const COMPLETE_BUNDLE_PRODUCT = {
+  id: "bundle-complete",
+  title: "Kidney Health Essentials Complete Bundle",
+  tagline: "All 3 Core Guides + Exclusive Bonus CKD Guide",
+  description: "Instant access to all 3 core patient guides plus the exclusive bonus Chronic Kidney Disease guide.",
+  price: 27.00,
+  regularPrice: 97.00,
+  currency: "USD",
+  pdfFile: "kidney-health-essentials-bundle.pdf",
+  paypalProductId: "BUNDLE-ESSENTIALS-005"
 };
 
 export const BENEFITS_LIST: BenefitItem[] = [

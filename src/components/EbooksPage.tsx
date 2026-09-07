@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { EbookResource } from '../types';
 import { MAIN_RESOURCES, BONUS_RESOURCE, BRAND_NAME, BUNDLE_NAME } from '../data/bundleData';
 import { EbookCoverVisual } from './EbookCoverVisual';
+import { usePurchases } from '../context/PurchaseContext';
 import { 
   BookOpen, 
   Search, 
@@ -18,7 +19,8 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  HelpCircle
+  HelpCircle,
+  ShoppingBag
 } from 'lucide-react';
 
 interface EbooksPageProps {
@@ -72,6 +74,7 @@ export const EbooksPage: React.FC<EbooksPageProps> = ({
   onOpenCheckout,
   onNavigateHome,
 }) => {
+  const { isPurchased, downloadEbook, openCheckout } = usePurchases();
   const [selectedCategory, setSelectedCategory] = useState<string>('All Guides');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedEbookId, setExpandedEbookId] = useState<string | null>(null);
@@ -355,15 +358,25 @@ export const EbooksPage: React.FC<EbooksPageProps> = ({
                       <span>Preview Look Inside</span>
                     </button>
 
-                    <a
-                      href={ebook.downloadUrl || '#'}
-                      download={ebook.downloadFileName || true}
-                      className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      id={`ebook-page-download-${ebook.id}`}
-                    >
-                      <Download className="w-3.5 h-3.5 text-emerald-300" />
-                      <span>Download eBook</span>
-                    </a>
+                    {isPurchased(ebook.id) ? (
+                      <button
+                        onClick={() => downloadEbook(ebook.id)}
+                        className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        id={`ebook-page-download-${ebook.id}`}
+                      >
+                        <Download className="w-3.5 h-3.5 text-white" />
+                        <span>Download eBook (PDF)</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => openCheckout(ebook)}
+                        className="w-full sm:w-auto bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        id={`ebook-page-buy-${ebook.id}`}
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-emerald-300" />
+                        <span>Buy Now • ${ebook.price.toFixed(2)}</span>
+                      </button>
+                    )}
                   </div>
 
                 </div>
